@@ -8,7 +8,7 @@ const Main = () => {
       {/* <div className="pt-28 pb-20">
       <Outlet/>
       </div> */}
-      <div className='min-h-[calc(100vh-68px)] pt-24'>
+      <div className='min-h-[calc(100vh-68px)] pt-24 pb-10'>
       <Outlet></Outlet>
       </div>
     </>
