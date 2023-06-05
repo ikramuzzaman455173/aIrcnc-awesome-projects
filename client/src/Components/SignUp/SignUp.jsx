@@ -1,13 +1,65 @@
-import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import PasswordHideShow from '../Shared/PasswordHideShow'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import HandleGoogle from '../Login/HandleGoogle'
+import PasswordHideShow from '../Shared/PasswordHideShow'
+import UseAuth from '../../Hooks/UseAuth'
+import { TbFidgetSpinner } from 'react-icons/tb'
+import { toast } from 'react-hot-toast'
+
 
 const SignUp = () => {
+  const { createUser, updateUserProfile, loading, setLoading } = UseAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from?.pathname||'/'
+  {/* ====handle signup new user===== */ }
+  const imageHostingToken = import.meta.env.VITE_IMAGE_UPLOAD_APIKEY
+  const imageHostingUrl = `https://api.imgbb.com/1/upload?key=${imageHostingToken}`
+  const handleSignup = (event) => {
+    event.preventDefault()
+    const form = event.target
+    const name = form.name.value
+    const email = form.email.value
+    const password = form.password.value
+    //image upload
+    const image = form.image.files[0]
+    const formData = new FormData()
+    formData.append('image', image)
+    fetch(imageHostingUrl, {
+      method: 'POST',
+      body: formData
+    })
+      .then(res => res.json())
+      .then(imageResponse => {
+        if (imageResponse.success) {
+          const imgURL = imageResponse.data.display_url
+          createUser(email, password)
+            .then(() => {
+              updateUserProfile(name, imgURL)
+                .then(() => {
+                  toast.success('Register Account Successfully !!!')
+                  setTimeout(() => {
+                    navigate(from,{replace:true})
+                  }, 2000);
+                }).catch(error => {
+                  toast.error(error.message)
+                })
+
+            }).catch(error => {
+              toast.error(error.message)
+            })
+        }
+        console.log(imageResponse);
+      }).catch(error => {
+        toast.error(error.message)
+      })
+    event.target.reset()
+  }
+
   const [passwordshow, setPasswordshow] = useState(true)
   const handleShowPassowrd = () => {
-      setPasswordshow(!passwordshow)
-    }
+    setPasswordshow(!passwordshow)
+  }
   return (
     <div className='flex justify-center items-center min-h-screen mt-5'>
       <div className='flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900'>
@@ -16,7 +68,7 @@ const SignUp = () => {
           <p className='text-sm text-gray-400'>Welcome to AirCNC</p>
         </div>
         <form
-          noValidate=''
+          onSubmit={handleSignup}
           action=''
           className='space-y-6 ng-untouched ng-pristine ng-valid'
         >
@@ -67,7 +119,7 @@ const SignUp = () => {
                 </label>
               </div>
               <input
-                type={passwordshow?'text':'password'}
+                type={passwordshow ? 'text' : 'password'}
                 name='password'
                 id='password'
                 required
@@ -81,9 +133,9 @@ const SignUp = () => {
           <div>
             <button
               type='submit'
-              className='bg-rose-500 w-full rounded-md py-3 text-white'
+              className='bg-rose-500 w-full text-center rounded-md py-3 text-white'
             >
-              Continue
+              {loading ? <TbFidgetSpinner size={24} className='m-auto animate-spin' /> : 'Continue'}
             </button>
           </div>
         </form>
@@ -99,7 +151,7 @@ const SignUp = () => {
 
           <p>Continue with Google</p>
         </div> */}
-        <HandleGoogle/>
+        <HandleGoogle />
         <p className='px-6 text-sm text-center text-gray-400'>
           Already have an account?{' '}
           <Link
