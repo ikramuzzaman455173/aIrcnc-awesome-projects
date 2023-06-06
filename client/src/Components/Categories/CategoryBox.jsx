@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import qs from "query-string";
 const CategoryBox = ({ item }) => {
   const { label, icon: Icon, description: desc } = item || {}

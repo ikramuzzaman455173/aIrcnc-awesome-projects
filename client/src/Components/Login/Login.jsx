@@ -5,6 +5,7 @@ import PasswordHideShow from '../Shared/PasswordHideShow'
 import UseAuth from '../../Hooks/UseAuth'
 import { toast } from "react-hot-toast";
 import HandleGoogle from './HandleGoogle'
+import { savedUser } from '../../CommonApi/Auth'
 const Login = () => {
   const { loading, setLoading, signIn, resetPassword } = UseAuth()
   const navigate = useNavigate()
@@ -20,14 +21,18 @@ const Login = () => {
     signIn(email, password)
       .then(result => {
         console.log(result.user);
-        navigate(from, { replace: true })
+        //save user to db
+        savedUser(result.user)
+        toast.success('LogIn Account Successfully !!!')
+        setTimeout(() => {
+          navigate(from, { replace: true })
+        }, 2000);
       }).catch(error => {
         setLoading(false)
         console.log(`Error:`, error.message);
         toast.error(error.message)
       })
   }
-
 
   const emailRef = useRef()
   {/* ====handleResetPassword===== */ }

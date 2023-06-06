@@ -31,52 +31,25 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    const usersCollection = client.db('simpleDb').collection('users')
+    const usersCollection = client.db('aircncDb').collection('users')
+    // const roomsCollection = client.db('aircncDb').collection('rooms')
+    // const bookingsCollection = client.db('aircncDb').collection('bookings')
 
-    //post jwt
-    app.post('/jwt', (req, res) => {
+    //save user role and email in db
+    app.put('/users/:email',async (req,res) => {
+      const email = req.params.email
+      console.log(`email:${email}`);
       const user = req.body
-      // console.log('user',user);
-      const token = jwt.sign(user, process.env.access_token_secreat_key, { expiresIn: '1h' })
-      res.send({ token })
-    })
-
-    // varifyAdminJwt
-    const varifyAdminJwt = async (req, res, next) => {
-      const email = req.decoded.email
+      console.log(`user:`,user);
       const query = { email: email }
-      const user = await usersCollection.findOne(query)
-      if (user?.role !== 'admin') {
-        return res.status(403).send({error:true,message:'forbidden message'})
+      const options = { upsert: true }
+      const updateDoc = {
+        $set:user,
       }
-      next()
-    }
-
-
-
-
-
-
-
-
-
-
-
-      // create payments intent
-      // app.post('/payment',varifyJwt,async (req,res) => {
-      //   const { price } = req.body
-      //   const amount = parseInt(price * 100)
-      //   console.log('price',price,'amount',amount);
-      //   const paymentIntent = await stripe.paymentIntents.create({
-      //     amount: amount,
-      //     currency: 'usd',
-      //     payment_method_types:['card']
-      //   })
-      //   res.send({
-      //     clientSecret:paymentIntent.client_secret
-      //   })
-      // })
-
+      const result = await usersCollection.updateOne(query,updateDoc,options)
+      // console.log('result', result);
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
@@ -97,5 +70,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`AirCNC is running on port ${port}`)
+  console.log(`AirCNC is running on Port:http://localhost:${port}`)
 })

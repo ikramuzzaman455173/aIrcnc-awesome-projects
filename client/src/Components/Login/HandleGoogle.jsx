@@ -3,6 +3,7 @@ import { FcGoogle } from 'react-icons/fc'
 import UseAuth from '../../Hooks/UseAuth'
 import { toast } from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { savedUser } from '../../CommonApi/Auth'
 
 const HandleGoogle = () => {
   const { signInWithGoogle, setLoading } = UseAuth()
@@ -14,6 +15,8 @@ const HandleGoogle = () => {
     signInWithGoogle()
       .then(result => {
         console.log(result.user);
+        // current user save for the db
+        savedUser(result.user)
         navigate(from,{replace:true})
       }).catch(error => {
         setLoading(false)

@@ -5,6 +5,7 @@ import PasswordHideShow from '../Shared/PasswordHideShow'
 import UseAuth from '../../Hooks/UseAuth'
 import { TbFidgetSpinner } from 'react-icons/tb'
 import { toast } from 'react-hot-toast'
+import { savedUser } from '../../CommonApi/Auth'
 
 
 const SignUp = () => {
@@ -34,10 +35,12 @@ const SignUp = () => {
         if (imageResponse.success) {
           const imgURL = imageResponse.data.display_url
           createUser(email, password)
-            .then(() => {
+            .then((result) => {
               updateUserProfile(name, imgURL)
                 .then(() => {
                   toast.success('Register Account Successfully !!!')
+                  //current user save to the db
+                  savedUser(result.user)
                   setTimeout(() => {
                     navigate(from,{replace:true})
                   }, 2000);
